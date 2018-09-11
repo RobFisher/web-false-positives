@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>False Positives</title>
+    <style>
+      .slider {
+        width: 100%;
+        border-radius: 50px;
+      }
+      .slider::-webkit-slider-thumb {
+        height: 25px;
+        border-radius: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <p>This page is a response to Alec Muffett's
+      <a href="https://twitter.com/AlecMuffett/status/1015601434593767424">tweet</a>
+      wishing for a Javascript version of his
+      <a href="https://github.com/alecmuffett/random-code-samples/blob/master/false-positives/falsepos.py">false positives simulator</a>,
+      in his <a href="https://twitter.com/AlecMuffett/status/1015594170424193024">Twitter thread</a> about
+      <a href="https://www.saveyourinternet.eu/about-this-campaign/">Article 13</a>
+      which suggests that user uploads might be automatically checked for copyright infringement.</p>
+
+      <div class="slidecontainer">
+        <input type="range" min="1" max="16118" value="9210" class="slider" id="badness_rate_slider" />
+      </div>
+      <p>Proportion of bad items: 1 in <span id="badness_rate_display" style="font-weight:bold;color:red"></span></p>
+      <div class="slidecontainer">
+        <input type="range" min="0" max="1000" value="995" class="slider" id="test_accuracy_slider" />
+      </div>
+      <p>Test accuracy: <span id="test_accuracy_display" style="font-weight:bold;color:blue"></span>%</p>
+      <input id="simulate_button" type="button" value="Simulate" />
+      <p>Tested <span id="items_tested" style="font-weight:bold;color:magenta"></span> items</p>
+      <p>Good items, correctly identified: <span id="results_good_accurate" style="font-weight:bold;color:green"></span></p>
+      <p>Bad items, correctly identified: <span id="results_bad_accurate" style="font-weight:bold;color:green"></span></p>
+      <p>Good items, false positive as bad: <span id="results_good_inaccurate" style="font-weight:bold;color:red"></span></p>
+      <p>Bad items, false negative as good: <span id="results_bad_inaccurate" style="font-weight:bold;color:red"></span></p>
+      <p>You are annoying <span id="annoying">???</span> people to stop <span id="badthings">???</span> bad things from happening.</p>
+
+      <script>
+        var badnessRateSlider = document.getElementById("badness_rate_slider");
+        var badnessRateDisplay = document.getElementById("badness_rate_display");
+        function getRoundedBadnessRate() {
+          var v = Math.pow(Math.E, (badnessRateSlider.value/1000)); // log scale slider for a wide range of numbers and easy to slide.
+          var n = Math.floor(Math.log10(v)); // we want 0 for numbers 1-9; 1 for 10-99; 2 for 100 to 999 and so on.
+          var m = Math.pow(10, n); // this gives us 1 for numbers 1-9; 10 for 10-99; 100 for 100 to 999 and so on.
+          var r = Math.round(v / m) * m; // now we've rounded according to the magnitude of the number
+          return r;
+        }
+
+        function updateBadnessRateDisplay() {
+          badnessRateDisplay.innerHTML = getRoundedBadnessRate().toLocaleString();
+        }
+
+        badnessRateSlider.oninput = function() {
+          updateBadnessRateDisplay();
+        }
+
+        updateBadnessRateDisplay();
+
+        var testAccuracySlider = document.getElementById("test_accuracy_slider");
+        var testAccuracyDisplay = document.getElementById("test_accuracy_display");
+
+        function getTestAccuracy() {
+          return testAccuracySlider.value / 10;
+        }
+
+        function updateTestAccuracyDisplay() {
+          testAccuracyDisplay.innerHTML = getTestAccuracy().toLocaleString();
+        }
+
+        testAccuracySlider.oninput = function() {
+          updateTestAccuracyDisplay();
+        }
+
+        updateTestAccuracyDisplay();
+
+        function updateResultsDisplay(itemsTested, results) {
+          document.getElementById("items_tested").innerHTML = itemsTested.toLocaleString();
+          document.getElementById("results_good_accurate").innerHTML = results["accurate:good"].toLocaleString();
+          document.getElementById("results_bad_accurate").innerHTML = results["accurate:bad"].toLocaleString();
+          document.getElementById("results_good_inaccurate").innerHTML = results["inaccurate:good"].toLocaleString();
+          document.getElementById("results_bad_inaccurate").innerHTML = results["inaccurate:bad"].toLocaleString();
+          document.getElementById("annoying").innerHTML = results["inaccurate:good"].toLocaleString();
+          document.getElementById("badthings").innerHTML = results["accurate:bad"].toLocaleString();
+        }
+
+        var simulateButton = document.getElementById("simulate_button");
+        simulateButton.onclick = function() {
+          var items = 10000000; // ie 10 million items
+          var badnessRate = getRoundedBadnessRate(); // ie 1 in 10,000 items are bad
+          var testAccuracyPct = testAccuracySlider.value / 10 // ie 99.5% accurate
+
+          var results = {};
+          results["accurate:good"] = 0;
+          results["accurate:bad"] = 0;
+          results["inaccurate:good"] = 0;
+          results["inaccurate:bad"] = 0;
+
+          var testAccuracy = testAccuracyPct / 100; // normalise: 99% -> 0.99
+
+          lastUpdateTime = new Date();
+          var i = 0;
+
+          function testItems() {
+            for (; i < items; i++) {
+              var test = "good";
+              if ((i % badnessRate) == 0) {
+                test="bad";
+              }
+              var r = Math.random();
+              if (r <= testAccuracy) {
+                results["accurate:"+test] += 1;
+              } else {
+                results["inaccurate:"+test] += 1;
+              }
+              if((i % 100000) == 0) {
+                now = new Date();
+                var elapsedTime = now - lastUpdateTime;
+                if (elapsedTime > 250) {
+                  lastUpdateTime = now;
+                  updateResultsDisplay(i, results);
+                  setTimeout(testItems, 10); // pause to allow browser to update display, then recurse to continue
+                  return;
+                }
+              }
+            }
+            updateResultsDisplay(i, results);
+          }
+
+          testItems();
+        } // end simulateButton.onclick
+      </script>
+  </body>
+</html>
+
