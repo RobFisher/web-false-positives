@@ -14,9 +14,15 @@
         height: 25px;
         border-radius: 50%;
       }
+      .l-box {
+        padding: 1em;
+      }
     </style>
   </head>
   <body>
+    <div class="pure-g">
+    <div class="pure-u-1">
+    <div class="l-box">
     <p>This page is a response to Alec Muffett's
       <a href="https://twitter.com/AlecMuffett/status/1015601434593767424">tweet</a>
       wishing for a Javascript version of his
@@ -35,7 +41,7 @@
         <input type="range" min="0" max="1000" value="995" class="slider" id="test_accuracy_slider" />
       </div>
 
-      <input id="simulate_button" type="button" value="Simulate" />
+      <button class="pure-button pure-button-primary" id="simulate_button">Simulate</button>
       <p>Tested <span id="items_tested" style="font-weight:bold;color:magenta"></span> items</p>
       <p>Good items, correctly identified: <span id="results_good_accurate" style="font-weight:bold;color:green"></span></p>
       <p>Bad items, correctly identified: <span id="results_bad_accurate" style="font-weight:bold;color:green"></span></p>
@@ -137,6 +143,9 @@
           testItems();
         } // end simulateButton.onclick
       </script>
+  </div>
+  </div>
+  </div>
   </body>
 </html>
 
