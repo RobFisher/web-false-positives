@@ -25,14 +25,16 @@
       <a href="https://www.saveyourinternet.eu/about-this-campaign/">Article 13</a>
       which suggests that user uploads might be automatically checked for copyright infringement.</p>
 
+      <p>Proportion of bad items: 1 in <span id="badness_rate_display" style="font-weight:bold;color:red"></span></p>
       <div class="slidecontainer">
         <input type="range" min="1" max="16118" value="9210" class="slider" id="badness_rate_slider" />
       </div>
-      <p>Proportion of bad items: 1 in <span id="badness_rate_display" style="font-weight:bold;color:red"></span></p>
+
       <div class="slidecontainer">
+      <p>Test accuracy: <span id="test_accuracy_display" style="font-weight:bold;color:blue"></span>%</p>
         <input type="range" min="0" max="1000" value="995" class="slider" id="test_accuracy_slider" />
       </div>
-      <p>Test accuracy: <span id="test_accuracy_display" style="font-weight:bold;color:blue"></span>%</p>
+
       <input id="simulate_button" type="button" value="Simulate" />
       <p>Tested <span id="items_tested" style="font-weight:bold;color:magenta"></span> items</p>
       <p>Good items, correctly identified: <span id="results_good_accurate" style="font-weight:bold;color:green"></span></p>
